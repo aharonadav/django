@@ -7,49 +7,22 @@ pipeline {
   } 
   agent any
   stages {
-    stage('Cloning Git') {
-      steps {
-                checkout scm
+    stage('Checkout external proj') {
+        steps {
+            git branch: 'main',
+                credentialsId: 'github-token',
+                url: 'https://github.com/aharonadav/django.git'
 
-      }
+            sh "ls -lat"
+        }
     }
     stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build imagename
-        }
-      }
-    }
-   
-stage('Deploy Master Image') {
-   when {
-      anyOf {
-            branch 'master'
-      }
-     }
-      steps{
-        script {
-          docker.withRegistry(ecrurl, ecrcredentials) {     
-            dockerImage.push("$BUILD_NUMBER")
-             dockerImage.push('latest')
-
+      agent { label "django-node"}
+        steps{
+          script {
+              def customImage = docker.build("aharonadav/django:${env.BUILD_ID}")
           }
         }
-      }
     }
-
- 
-   // stage('Remove Unused docker image - Master') {
-   //   when {
-   //   anyOf {
-   //         branch 'master'
-   //   }
-   //  }
-   //   steps{
-   //     sh "docker rmi $imagename:$BUILD_NUMBER"
-   //      sh "docker rmi $imagename:latest"
-
-   //  }
-   // } // End of remove unused docker image for master
   }  
-} //end of pipeline
+}
