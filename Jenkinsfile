@@ -29,7 +29,7 @@ pipeline {
         steps{
           script {
               def output = sh(script:'docker run -p 8000:8000 aharonadav/django:${env.BUILD_ID}',
-                              returnStatus: true).trim()
+                              returnStatus: true)
               println ${output}
           }
         }
