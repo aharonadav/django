@@ -24,5 +24,15 @@ pipeline {
           }
         }
     }
+    stage('Run image') {
+      agent { label "django-node"}
+        steps{
+          script {
+              def output = sh(script:'docker run -p 8000:8000 aharonadav/django:${env.BUILD_ID}',
+                              returnStatus: true).trim()
+              println ${output}
+          }
+        }
+    }
   }  
 }
