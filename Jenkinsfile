@@ -19,18 +19,20 @@ pipeline {
     stage('Building image') {
       agent { label "django-node"}
         steps{
-          script {
-              def customImage = docker.build("aharonadav/django:${env.BUILD_ID}")
-          }
+            dir('demo'){
+                script {
+                    def customImage = docker.build("aharonadav/django:${env.BUILD_ID}")
+                }
+            }
         }
     }
     stage('Run image') {
       agent { label "django-node"}
         steps{
           script {
-              def output = sh(script:'docker run -p 8000:8000 aharonadav/django:${env.BUILD_ID}',
+              def output = sh(script:"docker run -d -p 8000:8000 aharonadav/django:${env.BUILD_ID}",
                               returnStatus: true)
-              println "${output}"
+              println("${output}")
           }
         }
     }
